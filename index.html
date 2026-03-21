@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="icon" onclick="openChat()">💬</div>
+
+<div id="chat" class="hidden">
+  <div id="header">
+    <span>AI Assistant</span>
+    <button onclick="closeChat()">X</button>
+  </div>
+
+  <div id="messages"></div>
+
+  <input id="input" placeholder="Ask something..." />
+  <button onclick="sendMessage()">Send</button>
+</div>
+
+<script src="renderer.js"></script>
+</body>
+</html>
