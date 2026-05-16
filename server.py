@@ -8,20 +8,20 @@ import easyocr
 import json
 from datetime import datetime
 import os
+import requests
 
 app = Flask(__name__)
 CORS(app)
 
 # -----------------------------
-# OCR READER
+# EASY OCR
 # -----------------------------
 reader = easyocr.Reader(['en'])
 
 JSON_FILE = "ocr_data.json"
 
-
 # -----------------------------
-# CREATE JSON FILE IF NOT EXISTS
+# CREATE JSON FILE
 # -----------------------------
 if not os.path.exists(JSON_FILE):
     with open(JSON_FILE, "w") as f:
@@ -29,7 +29,7 @@ if not os.path.exists(JSON_FILE):
 
 
 # -----------------------------
-# SAVE TO JSON
+# SAVE JSON
 # -----------------------------
 def save_to_json(entry):
 
@@ -43,7 +43,39 @@ def save_to_json(entry):
 
 
 # -----------------------------
-# API ROUTE
+# OLLAMA AI FUNCTION
+# -----------------------------
+def ask_ai(user_query, screen_text):
+
+    prompt = f"""
+You are a screen assistant AI.
+
+The following text was extracted from the user's screen:
+
+{screen_text}
+
+User Question:
+{user_query}
+
+Answer the user clearly and shortly.
+"""
+
+    response = requests.post(
+        "http://localhost:11434/api/generate",
+        json={
+            "model": "llama3.2:3b",
+            "prompt": prompt,
+            "stream": False
+        }
+    )
+
+    result = response.json()
+
+    return result["response"]
+
+
+# -----------------------------
+# MAIN API
 # -----------------------------
 @app.route("/ask", methods=["POST"])
 def ask():
@@ -55,15 +87,16 @@ def ask():
     query = data["query"]
     image_data = data["image"]
 
-    # Remove base64 header
+    # -----------------------------
+    # DECODE IMAGE
+    # -----------------------------
     image_data = image_data.split(",")[1]
 
-    # Decode image
     image_bytes = base64.b64decode(image_data)
 
     image = Image.open(io.BytesIO(image_bytes))
 
-    # Save debug image
+    # Save screenshot
     image.save("debug.png")
 
     print("IMAGE SAVED")
@@ -75,31 +108,38 @@ def ask():
 
     extracted_text = "\n".join(result)
 
-    print("OCR RESULT:")
+    print("OCR TEXT:")
     print(extracted_text)
 
     # -----------------------------
-    # TIMESTAMP
+    # AI RESPONSE
+    # -----------------------------
+    ai_response = ask_ai(query, extracted_text)
+
+    print("AI RESPONSE:")
+    print(ai_response)
+
+    # -----------------------------
+    # SAVE JSON
     # -----------------------------
     timestamp = datetime.now().strftime(
         "%Y-%m-%d %H:%M:%S"
     )
 
-    # -----------------------------
-    # JSON ENTRY
-    # -----------------------------
     entry = {
         "timestamp": timestamp,
         "query": query,
-        "ocr_text": extracted_text
+        "ocr_text": extracted_text,
+        "ai_response": ai_response
     }
 
     save_to_json(entry)
 
-    print("JSON SAVED")
-
+    # -----------------------------
+    # RETURN RESPONSE
+    # -----------------------------
     return jsonify({
-        "response": extracted_text
+        "response": ai_response
     })
 
 
