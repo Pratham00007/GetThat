@@ -35,7 +35,12 @@ ipcMain.on("shrink-window", () => {
 });
 
 // Capture screen
+const screenshot = require('screenshot-desktop');
+const fs = require('fs');
+
 ipcMain.handle("capture-screen", async () => {
-  const sources = await desktopCapturer.getSources({ types: ['screen'] });
-  return sources[0].thumbnail.toDataURL();
+
+  const img = await screenshot({ format: 'png' });
+
+  return img.toString('base64');
 });

@@ -7,7 +7,9 @@ async function sendMessage() {
   if (!text) return;
 
   // Capture screen
-  const screenshot = await window.api.captureScreen();
+const raw = await window.api.captureScreen();
+
+const screenshot = `data:image/png;base64,${raw}`;
 
   // Show user message
   messages.innerHTML += `<div><b>You:</b> ${text}</div>`;

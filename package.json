@@ -57,6 +57,7 @@
     "resolve-alpn": "^1.2.1",
     "responselike": "^2.0.1",
     "roarr": "^2.15.4",
+    "screenshot-desktop": "^1.15.4",
     "semver": "^6.3.1",
     "semver-compare": "^1.0.0",
     "serialize-error": "^7.0.1",
@@ -68,6 +69,7 @@
     "wrappy": "^1.0.2",
     "yauzl": "^2.10.0"
   },
+  
   "keywords": [],
   "author": "",
   "license": "ISC",
