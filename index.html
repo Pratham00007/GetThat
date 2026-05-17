@@ -1,22 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="icon" onclick="openChat()">💬</div>
+<div id="chatIcon" class="chat-icon" title="Open AI Assistant">
+  <svg viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H8l-2 2V4h14v12z"/>
+  </svg>
+</div>
 
-<div id="chat" class="hidden">
-  <div id="header">
-    <span>AI Assistant</span>
-    <button onclick="closeChat()">X</button>
+<div id="chatDialog" class="chat-dialog hidden">
+  <div class="chat-header">
+    <h3>AI Assistant</h3>
+    <div class="header-buttons">
+      <button id="minimizeBtn" class="header-btn minimize-btn" title="Minimize">-</button>
+      <button id="closeBtn" class="header-btn close-btn" title="Close">✕</button>
+    </div>
   </div>
 
-  <div id="messages"></div>
+  <div id="messagesContainer" class="messages-container">
+    <div class="welcome-message">
+      <p>👋 Hello! I'm your AI Assistant.</p>
+      <p>Ask me anything about the screen or ask your Doubt.</p>
+    </div>
+  </div>
 
-  <input id="input" placeholder="Ask something..." />
-  <button onclick="sendMessage()">Send</button>
+  <div class="input-area">
+    <input 
+      id="chatInput" 
+      type="text" 
+      placeholder="Ask something..." 
+      autocomplete="off"
+    />
+    <button id="sendBtn" class="send-btn" title="Send">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M16.6915026,12.4744748 L3.50612381,13.2599618 C3.19218622,13.2599618 3.03521743,13.4170592 3.03521743,13.5741566 L1.15159189,20.0151496 C0.8376543,20.8006365 0.99,21.89 1.77946707,22.52 C2.41,22.99 3.50612381,23.1 4.13399899,22.9429026 L21.714504,14.0454487 C22.6563168,13.5741566 23.1272231,12.6315722 22.9702544,11.6889879 L4.13399899,1.20008605 C3.34915502,0.9429026409 2.40734225,1.00636533 1.77946707,1.4776575 C0.994623095,2.10604706 0.837654326,3.0486314 1.15159189,3.99701575 L3.03521743,10.4380088 C3.03521743,10.5951061 3.19218622,10.7522035 3.50612381,10.7522035 L16.6915026,11.5376905 C16.6915026,11.5376905 17.1624089,11.5376905 17.1624089,12.0089827 C17.1624089,12.4744748 16.6915026,12.4744748 16.6915026,12.4744748 Z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div id="loadingIndicator" class="loading-indicator hidden">
+  <div class="spinner"></div>
 </div>
 
 <script src="renderer.js"></script>

@@ -57,7 +57,7 @@ The following text was extracted from the user's screen:
 User Question:
 {user_query}
 
-Answer the user clearly and shortly.
+Answer the user clearly.
 """
 
     response = requests.post(
@@ -101,9 +101,6 @@ def ask():
 
     print("IMAGE SAVED")
 
-    # -----------------------------
-    # OCR
-    # -----------------------------
     result = reader.readtext("debug.png", detail=0)
 
     extracted_text = "\n".join(result)
@@ -111,17 +108,11 @@ def ask():
     print("OCR TEXT:")
     print(extracted_text)
 
-    # -----------------------------
-    # AI RESPONSE
-    # -----------------------------
     ai_response = ask_ai(query, extracted_text)
 
     print("AI RESPONSE:")
     print(ai_response)
 
-    # -----------------------------
-    # SAVE JSON
-    # -----------------------------
     timestamp = datetime.now().strftime(
         "%Y-%m-%d %H:%M:%S"
     )
@@ -135,16 +126,10 @@ def ask():
 
     save_to_json(entry)
 
-    # -----------------------------
-    # RETURN RESPONSE
-    # -----------------------------
     return jsonify({
         "response": ai_response
     })
 
 
-# -----------------------------
-# RUN SERVER
-# -----------------------------
 if __name__ == "__main__":
     app.run(port=5000)

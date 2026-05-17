@@ -6,59 +6,98 @@ GetThat is a privacy-focused desktop application that combines an Electron-based
 
 ## System Overview
 
-The application operates through a bridge between a Node.js environment and a Python Flask server. 
-
-
+The application operates through a bridge between a Node.js environment and a Python Flask server.
 
 ### Core Workflow
-1. **Interaction**: The user triggers the floating chat interface.
-2. **Capture**: Electron uses desktopCapturer to take a high-resolution screenshot of the current view.
-3. **Transport**: The image is encoded to Base64 and sent via an HTTP POST request to the local Python API.
-4. **Inference**: The Python backend processes the image and text query using a Vision-Language Model (VLM).
-5. **Display**: The AI response is streamed back to the Electron renderer and displayed in the chat UI.
+
+1. **Interaction**: The user clicks the draggable floating chat icon.
+2. **Capture**: Electron uses `desktopCapturer` to take a screenshot of the current screen.
+3. **Transport**: The screenshot is converted to Base64 and sent to the local Flask API.
+4. **Inference**: The backend processes the image and query using the offline `llama3.2:3b` model.
+5. **Display**: The AI-generated response is returned and displayed inside the chat dialog.
+
+---
+
+## Features
+
+* Draggable floating chat icon
+* Chat popup interface for asking questions
+* Offline AI responses using `llama3.2:3b`
+* Screen-aware contextual assistance
+* Local-only processing for improved privacy
+* Electron-based lightweight desktop UI
+* Flask-powered backend API
 
 ---
 
 ## Technical Stack
 
-* **Frontend**: Electron, JavaScript (ES6+), HTML5, CSS3.
-* **Backend**: Python 3.x, Flask, Pillow (PIL) for image handling.
-* **Communication**: RESTful API (Internal loopback).
+* **Frontend**: Electron, JavaScript (ES6+), HTML5, CSS3
+* **Backend**: Python 3.x, Flask, Pillow (PIL)
+* **AI Runtime**: Ollama with `llama3.2:3b`
+* **Communication**: REST API over localhost
 
 ---
-
 
 ## Installation and Setup
 
 ### 1. Prerequisites
-Ensure you have the following installed on your system:
-* Node.js (v16.x or higher)
-* Python (v3.8 or higher)
-* npm (included with Node.js)
 
-### 2. Frontend Installation
-Navigate to the project root and install the Node dependencies:
+Ensure the following are installed:
+
+* Node.js (v16 or higher)
+* Python (v3.8 or higher)
+* npm
+* Ollama
+
+Install and pull the required model:
+
+```bash
+ollama run llama3.2:3b
+```
+
+---
+
+## Frontend Installation
+
+Install Node.js dependencies:
+
 ```bash
 npm install
 ```
-If Electron is not listed in your global environment, ensure it is installed locally:
+
+If Electron is not installed locally:
+
 ```bash
 npm install electron --save-dev
 ```
 
-### 3. Backend Installation
-It is recommended to use a virtual environment for the Python backend:
+---
+
+## Backend Installation
+
+Create and activate a virtual environment:
+
 ```bash
 # Create virtual environment
 python -m venv venv
+```
 
-# Activate on Windows
+### Windows
+
+```bash
 venv\Scripts\activate
+```
 
-# Activate on macOS/Linux
+### macOS/Linux
+
+```bash
 source venv/bin/activate
+```
 
-# Install required packages
+Install Python dependencies:
+
+```bash
 pip install flask pillow flask-cors
 ```
 
@@ -66,50 +105,97 @@ pip install flask pillow flask-cors
 
 ## Running the Application
 
-To run GetThat, you must have two separate processes running simultaneously.
+Run all three commands in separate terminals.
 
-### Step 1: Start the Python Backend
-The backend handles the image processing and AI logic.
+### 1. Start Ollama Model
+
+```bash
+ollama run llama3.2:3b
+```
+
+### 2. Start Python Backend
+
 ```bash
 python server.py
 ```
-The server will initialize at `http://localhost:5000`.
 
-### Step 2: Start the Electron App
-Open a new terminal window/tab and execute:
+The backend server will run locally on:
+
+```txt
+http://localhost:5000
+```
+
+### 3. Start Electron Frontend
+
 ```bash
 npm start
 ```
-The floating icon should appear in the designated corner of your primary monitor.
 
 ---
 
-## Development and Model Integration
+## How It Works
 
-To integrate a specific AI model (such as Ollama, PyTorch, or Transformers), modify the `/ask` endpoint in `server.py`.
+* A floating draggable chat icon appears on the screen.
+* Clicking the icon opens the chat dialog.
+* Users can enter queries directly into the chat interface.
+* The application captures the current screen context.
+* The query and screenshot are processed using the local offline AI model.
+* Responses are displayed instantly in the UI.
 
-### API Specification
-* **Endpoint**: `POST /ask`
-* **Payload**:
-    * `query` (string): The user's text question.
-    * `image` (string): Base64 encoded screenshot.
+---
 
-### Integration Example
+## API Specification
+
+### Endpoint
+
+```http
+POST /ask
+```
+
+### Payload
+
+| Field | Type   | Description               |
+| ----- | ------ | ------------------------- |
+| query | string | User question             |
+| image | string | Base64 encoded screenshot |
+
+### Example
+
 ```python
 @app.route('/ask', methods=['POST'])
 def handle_query():
     data = request.json
     query = data.get('query')
     image_data = data.get('image')
-    
-    # Placeholder for Model Inference
-    # response = your_model.predict(query, image_data)
-    
-    return jsonify({"response": "Analysis complete."})
+
+    # Model inference logic here
+    # response = model.generate(query, image_data)
+
+    return jsonify({"response": "Analysis complete"})
 ```
 
 ---
 
 ## Security and Permissions
-* **Screen Recording**: On macOS and newer versions of Windows, you must explicitly grant the terminal or Electron permission to record the screen in System Settings.
-* **Localhost**: All data stays on the local machine. No external telemetry is sent unless configured in the model integration.
+
+* Screen recording permissions may be required on macOS and Windows.
+* All processing happens locally on the user's machine.
+* No screenshots or queries are sent to external servers unless manually configured.
+
+---
+
+## Model Used
+
+* `llama3.2:3b`
+* Powered locally using Ollama
+
+---
+
+## Future Improvements
+
+* Multi-monitor support
+* Streaming AI responses
+* Voice interaction
+* OCR optimization
+* Support for additional local VLMs
+* Better contextual memory handling

@@ -2,14 +2,17 @@ const { app, BrowserWindow, ipcMain, screen, desktopCapturer } = require('electr
 
 let win;
 
+const MINIMIZED_SIZE = { width: 120, height: 120 };
+const EXPANDED_SIZE = { width: 380, height: 520 };
+
 function createWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 
   win = new BrowserWindow({
-    width: 80,
-    height: 80,
-    x: width - 100,
-    y: height - 100,
+    width: MINIMIZED_SIZE.width,
+    height: MINIMIZED_SIZE.height,
+    x: width - 140,
+    y: height - 140,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -24,17 +27,62 @@ function createWindow() {
 
 app.whenReady().then(createWindow);
 
-// Expand window
+function clampToWorkArea(position, size) {
+  const display = screen.getDisplayNearestPoint(position || { x: 0, y: 0 });
+  const workArea = display.workArea;
+
+  const maxX = workArea.x + workArea.width - size.width;
+  const maxY = workArea.y + workArea.height - size.height;
+
+  return {
+    x: Math.min(Math.max(position.x, workArea.x), maxX),
+    y: Math.min(Math.max(position.y, workArea.y), maxY)
+  };
+}
+
 ipcMain.on("expand-window", () => {
-  win.setSize(350, 500);
+  if (!win) return;
+
+  const bounds = win.getBounds();
+  const nextX = bounds.x + bounds.width - EXPANDED_SIZE.width;
+  const nextY = bounds.y + bounds.height - EXPANDED_SIZE.height;
+
+  win.setBounds({
+    x: nextX,
+    y: nextY,
+    width: EXPANDED_SIZE.width,
+    height: EXPANDED_SIZE.height
+  });
 });
 
-// Minimize back to icon
 ipcMain.on("shrink-window", () => {
-  win.setSize(80, 80);
+  if (!win) return;
+
+  const bounds = win.getBounds();
+  const nextX = bounds.x + bounds.width - MINIMIZED_SIZE.width;
+  const nextY = bounds.y + bounds.height - MINIMIZED_SIZE.height;
+
+  win.setBounds({
+    x: nextX,
+    y: nextY,
+    width: MINIMIZED_SIZE.width,
+    height: MINIMIZED_SIZE.height
+  });
 });
 
-// Capture screen
+ipcMain.on("move-window", (_event, position) => {
+  if (!win || !position) return;
+
+  const bounds = win.getBounds();
+  const nextPosition = clampToWorkArea(position, { width: bounds.width, height: bounds.height });
+
+  win.setPosition(nextPosition.x, nextPosition.y);
+});
+
+ipcMain.on("quit-app", () => {
+  app.quit();
+});
+
 const screenshot = require('screenshot-desktop');
 const fs = require('fs');
 
