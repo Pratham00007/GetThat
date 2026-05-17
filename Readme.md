@@ -17,6 +17,15 @@ The application operates through a bridge between a Node.js environment and a Py
 5. **Display**: The AI-generated response is returned and displayed inside the chat dialog.
 
 ---
+## Screen Recording
+
+
+
+https://github.com/user-attachments/assets/3eb31413-cb3e-4392-a2b1-c9be5b28b0c1
+
+
+---
+
 
 ## Features
 
